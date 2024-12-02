@@ -10,20 +10,17 @@ import copy
 
 def parse(file_name):
     """Parse input"""
-    lists = {
-        "left": [],
-        "right": []
-    }
+    reports = []
 
     # First just get the stuff out of the file
     with open(file_name) as f:
         for line in f:
             if line != "\n":
-                nums = re.split(r"\s+", line)
-                lists["left"].append(int(nums[0]))
-                lists["right"].append(int(nums[1]))
+                levels = re.split(r"\s+", line.strip())
+                report = [int(x) for x in levels]
+                reports.append(report)
     
-    return lists
+    return reports
 
 def part1(data):
     """Solve part 1."""
