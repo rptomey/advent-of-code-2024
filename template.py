@@ -5,8 +5,8 @@ import copy
 # To run, go to the folder in the terminal, and enter:
 # python <code-filename.py> <input-filename.txt>
 
-# Don't forget to use `copy.copy(thing)` or `copy.deepcopy(thing)` to prevent
-# changing the original input in your part 1 solution before doing part 2.
+# Don't forget to use `copy.copy(thing)` or `copy.deepcopy(thing)`
+# to make changes to a thing without impacting the original version.
 
 def parse(file_name):
     """Parse input"""
