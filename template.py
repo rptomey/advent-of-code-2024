@@ -1,4 +1,5 @@
 import sys
+import time
 import re
 import copy
 
@@ -38,8 +39,10 @@ def solve(puzzle_input):
     return solution1, solution2
 
 if __name__ == "__main__":
+    time_start = time.perf_counter()
     for path in sys.argv[1:]:
         print(f"{path}:")
         puzzle_input = parse(path)
         solutions = solve(puzzle_input)
         print("\n".join(str(solution) for solution in solutions))
+        print(f"Solved in {time.perf_counter()-time_start:.5f} seconds")
