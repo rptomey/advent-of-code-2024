@@ -86,7 +86,6 @@ def part2(data):
                     num = update.pop(id_index)
                     update.insert(first_relevant_index, num)
                     rules_to_satisfy.append(rule_id)
-
         
         middle_index = math.floor(len(update)/2)
         middle = int(update[middle_index])
