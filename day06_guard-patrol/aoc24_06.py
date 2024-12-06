@@ -35,17 +35,18 @@ def parse(file_name):
                         data["grid"]["height"] = y
                     data["grid"][(x, y)] = {
                         "char": char,   # Map (x, y) to the character
-                        "touched": False    # Just in case we need to expand details for step 2
+                        "touched": False,
+                        "history": set()
                     }
                     if char in "^v<>":  # If the character represents the cursor
                         data["guard"]["x"] = x
                         data["guard"]["y"] = y
                         data["guard"]["dir"] = char
                         data["guard"]["start"] = (x, y)
-                        data["guard"]["moves"] = 0
                         data["grid"][(x, y)] = {    # Overwrite the guard's position in the grid
                             "char": ".",
-                            "touched": True
+                            "touched": True,
+                            "history": {char}
                         }
 
     return data
@@ -98,17 +99,19 @@ def turn(guard, turn_direction):
     elif turn_direction == "left":
         guard["dir"] = left_turns[current_direction]
 
-def move(guard, grid, next_pos):
+def move(guard, grid, next_pos, part):
     x, y = next_pos
     guard["x"] = x
     guard["y"] = y
-    guard["moves"] += 1
-    grid[next_pos]["touched"] = True
+    if part == 1:
+        grid[next_pos]["touched"] = True
+    elif part == 2:
+        grid[next_pos]["history"].add(guard["dir"])
 
 def part1(data):
     """Solve part 1."""
     grid = data["grid"]
-    guard = data["guard"]
+    guard = copy.deepcopy(data["guard"])    # Guard needs to be in original position for part 2
     max_x = grid["width"]
     max_y = grid["height"]
 
@@ -118,14 +121,13 @@ def part1(data):
         next_pos = get_next_position(guard)
         # Make sure they're still on the grid
         if next_pos[0] < 0 or next_pos[0] > max_x or next_pos[1] < 0 or next_pos[1] > max_y:
-            guard["exit"] = (guard["x"], guard["y"])
             patrolling = False
         else:
             next_char = grid[next_pos]["char"]
             if next_char == "#":
                 turn(guard, "right")
             else:
-                move(guard, grid, next_pos)
+                move(guard, grid, next_pos, 1)
 
     spaces_touched = 0
 
@@ -138,7 +140,48 @@ def part1(data):
 
 def part2(data):
     """Solve part 2."""
-    pass
+    grid = data["grid"]
+    original_guard = data["guard"]
+    max_x = grid["width"]
+    max_y = grid["height"]
+    
+    # Only need to test placing an obstacle in the original path from part1
+    spaces_touched = []
+    for key in grid.keys():
+        if type(key) == tuple:
+            if grid[key]["touched"]:
+                spaces_touched.append(key)
+
+    loops_caused = 0
+    tests = 0
+    total_tests = len(spaces_touched)
+
+    for space in spaces_touched:
+        tests += 1
+        print(f"Testing space {tests} out of {total_tests}...")
+        alt_grid = copy.deepcopy(grid)
+        alt_grid[space]["char"] = "#"
+        guard = copy.deepcopy(original_guard)
+
+        patrolling = True
+        while patrolling:
+            # See where the guard is about to go
+            next_pos = get_next_position(guard)
+            # Make sure they're still on the grid
+            if next_pos[0] < 0 or next_pos[0] > max_x or next_pos[1] < 0 or next_pos[1] > max_y:
+                patrolling = False
+            elif guard["dir"] in alt_grid[next_pos]["history"]:
+                # About to hit a looping state
+                loops_caused += 1
+                patrolling = False
+            else:
+                next_char = alt_grid[next_pos]["char"]
+                if next_char == "#":
+                    turn(guard, "right")
+                else:
+                    move(guard, alt_grid, next_pos, 2)
+
+    return loops_caused
 
 def solve(puzzle_input):
     """Solve the puzzle for the given input."""
