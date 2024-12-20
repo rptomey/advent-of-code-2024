@@ -75,7 +75,28 @@ def part1(data):
 
 def part2(data):
     """Solve part 2."""
-    pass
+    robots = data["robots"]
+    width = data["width"]
+    height = data["height"]
+
+    elapsed = 0
+    searching = True
+    while searching:
+        elapsed += 1
+        count = 0
+        unique_positions = set()
+
+        for robot in robots:
+            position = get_x_y(robot["x_start"], robot["y_start"], robot["x_velocity"], robot["y_velocity"], width, height, elapsed)
+            unique_positions.add(position)
+            count += 1
+            if count > len(unique_positions):
+                break
+        
+        if count == len(robots) == len(unique_positions):
+            searching = False
+    
+    return elapsed
 
 def solve(puzzle_input):
     """Solve the puzzle for the given input."""
